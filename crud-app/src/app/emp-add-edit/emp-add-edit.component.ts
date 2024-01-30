@@ -8,12 +8,14 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatSelectModule} from '@angular/material/select';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {MatDatepickerModule} from '@angular/material/datepicker';
+import { EmployeeService } from '../services/employee.service';
+import { DialogRef } from '@angular/cdk/dialog';
 
 
 @Component({
   selector: 'app-emp-add-edit',
   standalone: true,
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), EmployeeService],
   imports: [MatButtonModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatRadioModule, MatSelectModule, ReactiveFormsModule ],
   templateUrl: './emp-add-edit.component.html',
   styleUrl: './emp-add-edit.component.css'
@@ -23,7 +25,7 @@ export class EmpAddEditComponent {
 
   empGroup : FormGroup;
 
-  constructor(private _fb : FormBuilder){
+  constructor(private _fb : FormBuilder, private _empService : EmployeeService,private _dialogRef : DialogRef<EmpAddEditComponent>){
     this.empGroup = this._fb.group({
       firstName : '',
       lastName : '',
@@ -35,7 +37,22 @@ export class EmpAddEditComponent {
     })
   }
   OnSubmitForm(){
-    console.log(this.empGroup.value);
+    if(this.empGroup.valid){
+      this._empService.addEmployee(this.empGroup.value).subscribe(
+         {
+          next: (val : any)=>{
+              alert("Employee added successfully");
+              this._dialogRef.close();
+           }
+        ,
+           error: (err : any)=>{
+            console.log(err);
+           }
+           
+        }
+      )
+
+    }
   }
 
 }
