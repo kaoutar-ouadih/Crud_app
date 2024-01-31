@@ -25,7 +25,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit{
-  displayedColumns: string[] = ['id', 'firstName', 'lastName', 'email', 'dateOfBirth', 'gender', 'education', 'company'];
+  displayedColumns: string[] = ['id', 'firstName', 'lastName', 'email', 'dateOfBirth', 'gender', 'education', 'company', 'action'];
   dataSource!: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -40,7 +40,28 @@ export class AppComponent implements OnInit{
   }
 
   openAddEditEmpForm(){
-    this._dialog.open(EmpAddEditComponent);
+    const dialogRef = this._dialog.open(EmpAddEditComponent);
+    dialogRef.afterClosed().subscribe(
+      {
+        next: (val)=>{
+              if(val){
+                this.getEmployeeList();
+              }
+        }
+      }
+    )
+  }
+  openEditForm(data : any){
+    const dialogRef = this._dialog.open(EmpAddEditComponent, {data});
+    dialogRef.afterClosed().subscribe(
+      {
+        next: (val)=>{
+              if(val){
+                this.getEmployeeList();
+              }
+        }
+      }
+    )
   }
 
   getEmployeeList(){
@@ -64,5 +85,17 @@ export class AppComponent implements OnInit{
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  deleteEmployee(id : number){
+    this._empService.deleteEmployee(id).subscribe({
+      next: (result)=>{
+        alert("employee deleted");
+        this.getEmployeeList();
+      },
+      error: (err)=>{
+        console.log(err);
+      }
+    })
   }
 }
